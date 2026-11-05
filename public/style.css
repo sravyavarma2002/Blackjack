@@ -177,5 +177,7 @@ footer a { color: var(--mint); }
 }
 @media (prefers-reduced-motion: reduce) { .cards img.fresh { animation: none; } }
 
+.fatal { background: #5a1d14; border: 1px solid #ff9b86; color: #ffe3dc; border-radius: 14px; padding: 14px 18px; line-height: 1.5; }
+
 /* The login card carries its own title, so hide the page title while signed out. */
 body:has(#authView:not(.hidden)) .top h1 { display: none; }

@@ -20,6 +20,8 @@
     <button id="logout" class="link hidden">Log out</button>
   </header>
 
+  <div id="fatal" class="fatal hidden" role="alert"></div>
+
   <!-- ============ Sign in ============ -->
   <section id="authView" class="auth hidden">
     <div id="authCard" class="card">
@@ -33,9 +35,9 @@
         <button class="act" id="authSubmit" type="submit">Log in</button>
       </form>
       <button type="button" class="link" id="forgotLink">Forgot password?</button>
-      <div id="googleWrap" class="hidden">
+      <div id="googleWrap">
         <div class="or"><span>or</span></div>
-        <button type="button" class="act alt" id="googleBtn"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.5-4.1 7-10.2 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.9-6.1A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Continue with Google</button>
+        <button type="button" class="act alt" id="googleBtn"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.5-4.1 7-10.2 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.9-6.1A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Sign in with Google</button>
       </div>
     </div>
 
@@ -167,11 +169,33 @@
   <footer>Dealer stands on all 17s. Blackjack pays 3:2. 6-deck shoe. Cards by <a href="https://deckofcardsapi.com/" target="_blank" rel="noopener">Deck of Cards API</a>. Play money only.</footer>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js"></script>
-<script src="strategy.js"></script>
-<script src="store.js"></script>
-<script src="stats.js"></script>
-<script src="app.js"></script>
+<script>
+/* Shows load and runtime problems on the page instead of failing silently. */
+(function () {
+  var failed = [], runtime = [];
+  function show() {
+    var el = document.getElementById("fatal");
+    if (!el) return;
+    var html = "";
+    if (failed.length) html += "<strong>These files didn't load: " + failed.join(", ") + ".</strong> Upload every file from the project folder next to index.html (same folder), then redeploy and hard-refresh.<br>";
+    if (runtime.length) html += "<strong>Error:</strong> " + runtime.join("<br>");
+    el.innerHTML = html;
+    el.classList.remove("hidden");
+  }
+  window.addEventListener("error", function (e) {
+    if (e.target && e.target.tagName === "SCRIPT") failed.push((e.target.getAttribute("src") || "").split("/").pop());
+    else runtime.push(String(e.message || "Unknown error").replace(/</g, "&lt;") + (e.filename ? " (" + e.filename.split("/").pop() + ":" + e.lineno + ")" : ""));
+    show();
+  }, true);
+  window.addEventListener("unhandledrejection", function (e) {
+    runtime.push(String((e.reason && e.reason.message) || e.reason).replace(/</g, "&lt;")); show();
+  });
+})();
+</script>
+<script type="module">import * as ID from "./vendor/netlify-identity.js"; window.NFID = ID;</script>
+<script defer src="strategy.js"></script>
+<script defer src="store.js"></script>
+<script defer src="stats.js"></script>
+<script defer src="app.js"></script>
 </body>
 </html>
