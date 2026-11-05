@@ -1,459 +1,180 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Blackjack</title>
+<meta name="description" content="Play Blackjack using the Deck of Cards API. Track your stats and test strategies.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%A0%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --felt: #1f4d3a;
-    --felt-dark: #123326;
-    --ink: #f4efe3;
-    --brass: #d2a948;
-    --brick: #e07a63;
-  }
-  * { box-sizing: border-box; }
-  [hidden] { display: none !important; }
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background: var(--felt-dark);
-    color: var(--ink);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.5;
-  }
-  h1, h2 { font-family: "DM Serif Display", Georgia, "Times New Roman", serif; font-weight: 400; margin: 0; }
-  button { font: inherit; cursor: pointer; }
-  button:focus-visible, a:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-
-  /* ---------- Login screen ---------- */
-  #login {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    padding: 24px;
-    text-align: center;
-  }
-  .hero-cards { display: flex; justify-content: center; margin-bottom: 8px; }
-  .hero-cards img {
-    width: clamp(90px, 24vw, 130px);
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 6px 16px rgba(0,0,0,.5);
-  }
-  .hero-cards img:first-child { transform: rotate(-8deg); margin-right: -18px; }
-  .hero-cards img:last-child { transform: rotate(7deg); }
-  #login h1 { font-size: clamp(3rem, 12vw, 5.5rem); line-height: 1; }
-  #login p { margin: 0; max-width: 34ch; font-size: 1.1rem; }
-  #googleButton { min-height: 44px; }
-  #setupNote {
-    max-width: 44ch;
-    padding: 12px 16px;
-    border: 2px solid var(--brass);
-    border-radius: 10px;
-    background: rgba(0,0,0,.25);
-  }
-
-  /* ---------- Game screen ---------- */
-  #game { max-width: 760px; margin: 0 auto; padding: 16px; }
-  .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0 16px; }
-  .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .who img { width: 36px; height: 36px; border-radius: 50%; background: var(--felt); }
-  .who span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .link { background: none; border: 0; color: var(--ink); text-decoration: underline; padding: 10px 4px; min-height: 44px; }
-
-  .table {
-    position: relative;
-    background: var(--felt);
-    border: 2px solid rgba(210,169,72,.65);
-    border-radius: 28px;
-    padding: clamp(20px, 5vw, 40px);
-    display: grid;
-    gap: 20px;
-  }
-  .table::before {
-    content: "";
-    position: absolute;
-    inset: 9px;
-    border: 1.5px dashed rgba(244,239,227,.25);
-    border-radius: 20px;
-    pointer-events: none;
-  }
-  .hand h2 { font-size: 1.6rem; margin-bottom: 8px; }
-  .hand h2 small { font-family: system-ui, sans-serif; font-size: 1rem; opacity: .85; margin-left: 8px; }
-  .cards { display: flex; flex-wrap: wrap; gap: 8px; min-height: clamp(100px, 25vw, 156px); }
-  .card {
-    width: clamp(72px, 18vw, 112px);
-    height: auto;
-    border-radius: 6px;
-    box-shadow: 0 3px 8px rgba(0,0,0,.45);
-  }
-  #message {
-    margin: 0;
-    text-align: center;
-    font-family: "DM Serif Display", Georgia, serif;
-    font-size: clamp(1.4rem, 5vw, 2rem);
-    min-height: 2.6rem;
-  }
-  .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
-  .actions button {
-    min-width: 110px;
-    min-height: 48px;
-    padding: 0 22px;
-    border-radius: 999px;
-    border: 2px solid var(--brass);
-    font-weight: 600;
-  }
-  .primary { background: var(--brass); color: #1a1a14; }
-  .secondary { background: transparent; color: var(--ink); }
-  .actions button:disabled { opacity: .4; cursor: not-allowed; }
-  #record { text-align: center; margin: 16px 0 0; }
-  footer { text-align: center; font-size: .85rem; opacity: .8; padding: 20px 0; }
-  footer a { color: var(--ink); }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+<main>
+  <header class="top">
+    <h1>Blackjack</h1>
+    <nav id="tabs" class="tabs hidden" aria-label="Sections">
+      <button class="on" data-tab="table" aria-selected="true">Table</button>
+      <button data-tab="stats" aria-selected="false">Stats</button>
+      <button data-tab="profile" aria-selected="false">Profile</button>
+    </nav>
+    <button id="logout" class="link hidden">Log out</button>
+  </header>
 
-<!-- ======== Login screen ======== -->
-<section id="login">
-  <div class="hero-cards">
-    <img src="https://deckofcardsapi.com/static/img/AS.png" alt="Ace of spades">
-    <img src="https://deckofcardsapi.com/static/img/KH.png" alt="King of hearts">
-  </div>
-  <h1>Blackjack</h1>
-  <p>Sign in with Google to play. Get closer to 21 than the dealer without going over.</p>
-  <div id="googleButton"></div>
-  <p id="setupNote" hidden>Setup needed: open <strong>index.html</strong> in a text editor and paste your Google Client ID where it says <strong>GOOGLE_CLIENT_ID</strong>.</p>
-</section>
-
-<!-- ======== Game screen ======== -->
-<main id="game" hidden>
-  <div class="bar">
-    <div class="who">
-      <img id="avatar" alt="" referrerpolicy="no-referrer">
-      <span id="userName"></span>
-    </div>
-    <button id="signOut" class="link" type="button">Sign out</button>
-  </div>
-
-  <section class="table">
-    <div class="hand">
-      <h2>Dealer <small id="dealerTotal"></small></h2>
-      <div id="dealerCards" class="cards"></div>
-    </div>
-
-    <p id="message" role="status" aria-live="polite"></p>
-
-    <div class="hand">
-      <h2>You <small id="playerTotal"></small></h2>
-      <div id="playerCards" class="cards"></div>
+  <!-- ============ Sign in ============ -->
+  <section id="authView" class="auth hidden">
+    <div id="authCard" class="card">
+      <div class="seg" id="authSeg">
+        <button type="button" data-mode="login" class="on">Log in</button>
+        <button type="button" data-mode="signup">Sign up</button>
+      </div>
+      <form id="authForm">
+        <label>Email <input id="email" type="email" autocomplete="email" required></label>
+        <label>Password <input id="password" type="password" autocomplete="current-password" minlength="6" required></label>
+        <button class="act" id="authSubmit" type="submit">Log in</button>
+      </form>
+      <button type="button" class="link" id="forgotLink">Forgot password?</button>
+      <div id="googleWrap" class="hidden">
+        <div class="or"><span>or</span></div>
+        <button type="button" class="act alt" id="googleBtn">Continue with Google</button>
+      </div>
     </div>
 
-    <div class="actions">
-      <button id="hit" class="primary" type="button">Hit</button>
-      <button id="stand" class="primary" type="button">Stand</button>
-      <button id="deal" class="secondary" type="button">Deal</button>
+    <div id="forgotCard" class="card hidden">
+      <p>Enter your email and we'll send you a link to set a new password.</p>
+      <form id="forgotForm">
+        <label>Email <input id="forgotEmail" type="email" autocomplete="email" required></label>
+        <button class="act" type="submit">Send reset link</button>
+      </form>
+      <button type="button" class="link" id="backToLogin">Back to log in</button>
     </div>
+
+    <div id="recoverCard" class="card hidden">
+      <p>Choose a new password.</p>
+      <form id="recoverForm">
+        <label>New password <input id="newPassword" type="password" autocomplete="new-password" minlength="6" required></label>
+        <button class="act" type="submit">Save new password</button>
+      </form>
+    </div>
+    <p id="authMsg" class="authmsg" role="status" aria-live="polite"></p>
   </section>
 
-  <p id="record"></p>
-  <footer>Cards from <a href="https://deckofcardsapi.com/" target="_blank" rel="noopener">deckofcardsapi.com</a></footer>
+  <!-- ============ App ============ -->
+  <div id="appView" class="hidden">
+    <div id="banner" class="banner hidden">
+      <span id="bannerText"></span>
+      <button id="bannerClose" aria-label="Dismiss message">&#10005;</button>
+    </div>
+
+    <!-- Table -->
+    <section id="tableView">
+      <div class="meta">
+        <div>Bank <strong id="bank">$1,000</strong></div>
+        <div>Bet <strong id="bet">$0</strong></div>
+        <div>Cards left <strong id="left">–</strong></div>
+      </div>
+
+      <div class="table" aria-label="Blackjack table">
+        <div class="zone">
+          <div class="caption"><span>Dealer</span><span class="total" id="dtotal"></span></div>
+          <div class="cards" id="dealer" aria-label="Dealer's cards"></div>
+        </div>
+
+        <div class="mid">
+          <div id="status" role="status" aria-live="polite">Place your bet.</div>
+          <div id="hintLine" class="hintline"></div>
+          <div id="countLine" class="countline"></div>
+        </div>
+
+        <div class="zone">
+          <div class="caption"><span>You</span></div>
+          <div class="hands" id="hands" aria-label="Your hands"></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div id="betPanel" class="controls">
+          <div class="row" id="chips">
+            <button class="chip c5" data-v="5" aria-label="Add $5 to bet">$5</button>
+            <button class="chip c25" data-v="25" aria-label="Add $25 to bet">$25</button>
+            <button class="chip c100" data-v="100" aria-label="Add $100 to bet">$100</button>
+            <button class="chip c500" data-v="500" aria-label="Add $500 to bet">$500</button>
+          </div>
+          <div class="row">
+            <button class="act alt" id="clear">Clear</button>
+            <button class="act alt" id="rebet">Repeat last bet</button>
+            <button class="act" id="deal">Deal <kbd>Enter</kbd></button>
+            <button class="act hidden" id="reset">Reset bank to $1,000</button>
+          </div>
+        </div>
+        <div id="playPanel" class="row hidden">
+          <button class="act" id="hit">Hit <kbd>H</kbd></button>
+          <button class="act" id="stand">Stand <kbd>S</kbd></button>
+          <button class="act alt" id="double">Double <kbd>D</kbd></button>
+          <button class="act alt" id="split">Split <kbd>P</kbd></button>
+        </div>
+      </div>
+
+      <div class="card strat">
+        <label>Strategy I'm testing
+          <select id="strategy"></select>
+        </label>
+        <label class="chk"><input type="checkbox" id="hints"> Show basic strategy hints</label>
+        <label class="chk"><input type="checkbox" id="count"> Show card count</label>
+        <button class="act alt" id="resetBank">Reset bank to $1,000</button>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section id="statsView" class="hidden">
+      <h2>Your metrics</h2>
+      <div class="filters">
+        <label>Strategy <select id="fStrategy"></select></label>
+        <label>Time
+          <select id="fRange">
+            <option value="all">All time</option>
+            <option value="30d">Last 30 days</option>
+            <option value="7d">Last 7 days</option>
+            <option value="24h">Last 24 hours</option>
+          </select>
+        </label>
+        <button class="act alt" id="exportCsv">Export CSV</button>
+        <button class="act alt" id="exportJson">Export JSON</button>
+      </div>
+      <div id="statsBody"></div>
+    </section>
+
+    <!-- Profile -->
+    <section id="profileView" class="hidden">
+      <h2>Your profile</h2>
+      <p class="muted" id="signedIn"></p>
+      <p id="profileWelcome" class="welcome hidden">Welcome! Create your profile so other players know who you are.</p>
+      <form id="profileForm" class="card form">
+        <label>Display name <input id="pDisplay" maxlength="60" autocomplete="name"></label>
+        <label>Username <input id="pUser" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false">
+          <small>3–20 letters, numbers, or underscores. Must be unique.</small></label>
+        <label>Hometown <input id="pTown" maxlength="80"></label>
+        <label>Bio <textarea id="pBio" rows="3" maxlength="280"></textarea>
+          <small id="bioCount">0/280</small></label>
+        <button class="act" type="submit">Save profile</button>
+        <p id="profileMsg" class="authmsg" role="status" aria-live="polite"></p>
+      </form>
+
+      <h2>Your stats</h2>
+      <div id="pStats" class="tiles"></div>
+    </section>
+  </div>
+
+  <footer>Dealer stands on all 17s. Blackjack pays 3:2. 6-deck shoe. Cards by <a href="https://deckofcardsapi.com/" target="_blank" rel="noopener">Deck of Cards API</a>. Play money only.</footer>
 </main>
 
-<script>
-  // ============================================================
-  // STEP 1: Paste your Google Client ID between the quotes below.
-  // It ends in .apps.googleusercontent.com
-  // ============================================================
-  const GOOGLE_CLIENT_ID = "PASTE_YOUR_CLIENT_ID_HERE";
-
-  const API = "https://deckofcardsapi.com/api/deck";
-  const CARD_BACK = "https://deckofcardsapi.com/static/img/back.png";
-
-  let user = null;          // the person who is logged in
-  let deckId = null;        // the deck we are drawing from
-  let remaining = 0;        // cards left in the deck
-  let player = [];          // the player's cards
-  let dealer = [];          // the dealer's cards
-  let playing = false;      // true while the player can hit or stand
-  let busy = false;         // true while waiting for the card service
-
-  const $ = (id) => document.getElementById(id);
-
-  // ---------------------------------------------------------
-  // Google Login
-  // ---------------------------------------------------------
-
-  // Google sends back a "token": a coded note that says who signed in.
-  // This turns the note into a plain object with name, email and picture.
-  function readToken(token) {
-    const part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-    const json = decodeURIComponent(
-      atob(part).split("").map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)).join("")
-    );
-    return JSON.parse(json);
-  }
-
-  function onGoogleSignIn(response) {
-    const info = readToken(response.credential);
-    user = { id: info.sub, name: info.name || info.email, picture: info.picture || "" };
-    try { localStorage.setItem("bjUser", JSON.stringify(user)); } catch (e) {}
-    showGame();
-  }
-
-  // Runs when Google's script has finished loading.
-  function startGoogle() {
-    if (GOOGLE_CLIENT_ID.startsWith("PASTE")) {
-      $("setupNote").hidden = false;
-      return;
-    }
-    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onGoogleSignIn });
-    google.accounts.id.renderButton($("googleButton"), {
-      theme: "filled_black", size: "large", text: "continue_with", shape: "pill"
-    });
-  }
-
-  function signOut() {
-    try { localStorage.removeItem("bjUser"); } catch (e) {}
-    if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
-    user = null;
-    playing = false;
-    $("game").hidden = true;
-    $("login").hidden = false;
-  }
-
-  function showGame() {
-    $("login").hidden = true;
-    $("game").hidden = false;
-    $("userName").textContent = user.name;
-    if (user.picture) { $("avatar").src = user.picture; } else { $("avatar").hidden = true; }
-    showRecord();
-    deal();
-  }
-
-  // ---------------------------------------------------------
-  // Talking to the Deck of Cards API
-  // ---------------------------------------------------------
-  async function getJson(url) {
-    const reply = await fetch(url);
-    if (!reply.ok) throw new Error("Request failed");
-    const data = await reply.json();
-    if (!data.success) throw new Error("Request failed");
-    return data;
-  }
-
-  async function newDeck() {
-    const data = await getJson(API + "/new/shuffle/?deck_count=6");
-    deckId = data.deck_id;
-    remaining = data.remaining;
-  }
-
-  async function drawCards(count) {
-    const data = await getJson(API + "/" + deckId + "/draw/?count=" + count);
-    remaining = data.remaining;
-    return data.cards;
-  }
-
-  // ---------------------------------------------------------
-  // Blackjack rules
-  // ---------------------------------------------------------
-  function cardPoints(card) {
-    if (card.value === "ACE") return 11;
-    if (["KING", "QUEEN", "JACK"].includes(card.value)) return 10;
-    return Number(card.value);
-  }
-
-  // Adds up a hand. An ace counts as 11, or 1 if 11 would go over 21.
-  function total(hand) {
-    let sum = 0;
-    let aces = 0;
-    for (const card of hand) {
-      sum += cardPoints(card);
-      if (card.value === "ACE") aces++;
-    }
-    while (sum > 21 && aces > 0) {
-      sum -= 10;
-      aces--;
-    }
-    return sum;
-  }
-
-  const isBlackjack = (hand) => hand.length === 2 && total(hand) === 21;
-
-  // ---------------------------------------------------------
-  // Showing things on the screen
-  // ---------------------------------------------------------
-  function say(text) { $("message").textContent = text; }
-
-  function showCards(box, hand, hideSecond) {
-    box.replaceChildren();
-    hand.forEach((card, index) => {
-      const img = document.createElement("img");
-      const hidden = hideSecond && index === 1;
-      img.className = "card";
-      img.src = hidden ? CARD_BACK : card.image;
-      img.alt = hidden ? "Face-down card" : card.value.toLowerCase() + " of " + card.suit.toLowerCase();
-      box.appendChild(img);
-    });
-  }
-
-  function render() {
-    const hideDealer = playing;
-    showCards($("dealerCards"), dealer, hideDealer);
-    showCards($("playerCards"), player, false);
-    $("playerTotal").textContent = player.length ? total(player) : "";
-    if (!dealer.length) {
-      $("dealerTotal").textContent = "";
-    } else if (hideDealer) {
-      $("dealerTotal").textContent = "showing " + cardPoints(dealer[0]);
-    } else {
-      $("dealerTotal").textContent = total(dealer);
-    }
-    $("hit").disabled = busy || !playing;
-    $("stand").disabled = busy || !playing;
-    $("deal").disabled = busy || playing;
-  }
-
-  // ---------------------------------------------------------
-  // Win / loss record, saved in this browser for each person
-  // ---------------------------------------------------------
-  function loadRecord() {
-    try {
-      return JSON.parse(localStorage.getItem("bjRecord:" + user.id)) || { win: 0, loss: 0, push: 0 };
-    } catch (e) {
-      return { win: 0, loss: 0, push: 0 };
-    }
-  }
-
-  function addToRecord(result) {
-    const record = loadRecord();
-    record[result]++;
-    try { localStorage.setItem("bjRecord:" + user.id, JSON.stringify(record)); } catch (e) {}
-    showRecord();
-  }
-
-  function showRecord() {
-    const r = loadRecord();
-    $("record").textContent = "Wins " + r.win + ", Losses " + r.loss + ", Ties " + r.push;
-  }
-
-  // ---------------------------------------------------------
-  // Playing a round
-  // ---------------------------------------------------------
-  const CONNECTION_ERROR = "Could not reach the card service. Check your internet, then press Deal.";
-
-  async function deal() {
-    if (busy) return;
-    busy = true;
-    playing = false;
-    render();
-    say("Dealing...");
-    try {
-      // Get a fresh shuffled deck if we do not have one or it is running low.
-      if (!deckId || remaining < 20) await newDeck();
-      const cards = await drawCards(4);
-      player = [cards[0], cards[2]];
-      dealer = [cards[1], cards[3]];
-      playing = true;
-      render();
-      if (total(player) === 21) {
-        await finishRound();
-      } else {
-        say("Hit or stand?");
-      }
-    } catch (e) {
-      playing = false;
-      say(CONNECTION_ERROR);
-    }
-    busy = false;
-    render();
-  }
-
-  async function hit() {
-    if (busy || !playing) return;
-    busy = true;
-    render();
-    try {
-      const cards = await drawCards(1);
-      player.push(cards[0]);
-      render();
-      if (total(player) >= 21) await finishRound();
-    } catch (e) {
-      playing = false;
-      say(CONNECTION_ERROR);
-    }
-    busy = false;
-    render();
-  }
-
-  async function stand() {
-    if (busy || !playing) return;
-    busy = true;
-    render();
-    try {
-      await finishRound();
-    } catch (e) {
-      playing = false;
-      say(CONNECTION_ERROR);
-    }
-    busy = false;
-    render();
-  }
-
-  // The dealer takes cards until reaching 17 or more, then we find the winner.
-  async function finishRound() {
-    playing = false;
-    render();
-    const playerBust = total(player) > 21;
-    if (!playerBust && !isBlackjack(player)) {
-      while (total(dealer) < 17) {
-        const cards = await drawCards(1);
-        dealer.push(cards[0]);
-        render();
-      }
-    }
-
-    const p = total(player);
-    const d = total(dealer);
-    let result, text;
-    if (p > 21) { result = "loss"; text = "Bust. The dealer wins."; }
-    else if (isBlackjack(player) && !isBlackjack(dealer)) { result = "win"; text = "Blackjack! You win."; }
-    else if (isBlackjack(dealer) && !isBlackjack(player)) { result = "loss"; text = "The dealer has blackjack."; }
-    else if (d > 21) { result = "win"; text = "The dealer busts. You win!"; }
-    else if (p > d) { result = "win"; text = "You win!"; }
-    else if (p < d) { result = "loss"; text = "The dealer wins."; }
-    else { result = "push"; text = "Tie. Nobody wins."; }
-
-    say(text);
-    addToRecord(result);
-  }
-
-  // ---------------------------------------------------------
-  // Start up
-  // ---------------------------------------------------------
-  $("hit").addEventListener("click", hit);
-  $("stand").addEventListener("click", stand);
-  $("deal").addEventListener("click", deal);
-  $("signOut").addEventListener("click", signOut);
-
-  // If the person signed in before, skip the login screen.
-  try {
-    const saved = JSON.parse(localStorage.getItem("bjUser"));
-    if (saved && saved.id) {
-      user = saved;
-      showGame();
-    }
-  } catch (e) {}
-</script>
-
-<!-- Google's sign-in script. When it loads, it runs startGoogle() above. -->
-<script src="https://accounts.google.com/gsi/client" async defer onload="startGoogle()"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="strategy.js"></script>
+<script src="store.js"></script>
+<script src="stats.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
